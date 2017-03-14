@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html ng-app="taskListApp">
+<head>
+    <title>ToDo List (Task2)</title>
+    <script src="Libraries/angular.js"></script>
+    <link href="Libraries/bootstrap-theme.css" rel="stylesheet" />
+    <link href="Libraries/bootstrap.css" rel="stylesheet" />
+    <script src="Task2/todo.js"></script>
+    <!--<script src="Task2/model.js"></script>-->
+
+    
+    <script>
+        
+        // Добавьте AngularJS контроллер
+        var model = {
+            user: "LG",
+            tasks: [{ name: "workout", duedate: "06/03/2017", description: "10 push ups", checked: false },
+            { name: "run", duedate: "08/03/2017", description: "3000m", checked: false }]
+        };
+
+        var taskListApp = angular.module("taskListApp", []);
+
+
+
+        taskListApp.controller("taskListCtrl", function ($scope) {
+
+            //localStorage.
+
+            $scope.saved = localStorage["tasks"];
+            //todoModel.save();
+            $scope.tasks = (localStorage["tasks"] !== null) ? JSON.parse($scope.saved) : todoModel.data;
+            //$scope.tasks = todoModel.data;
+
+            $scope.showText = function (completed) {
+                return completed ? "YES" : "NO";
+            }
+
+            $scope.setStyle = function (completed) {
+                return completed ? "color: green" : "color:red; font-weight: bold";
+            }
+
+            
+
+            $scope.addNewTask = function () {
+                if (localStorage["tasks"] !== null)
+                    $scope.tasks = todoModel.read();
+
+
+                todoModel.addItem($scope.NAME, $scope.DUEDATE, $scope.DESCRIPTION, $scope.COMPLETED);
+
+                //todoModel.save();
+
+                todoModel.save();
+                $scope.NAME = "";
+                $scope.DUEDATE = "";
+                $scope.DESCRIPTION = "";
+                $scope.COMPLETED = "";
+                
+                $scope.tasks = todoModel.read();
+
+
+            };
+
+
+
+            $scope.archive = function () {
+
+                var oldTasks = $scope.tasks;
+                todoModel.data = [];
+                $scope.tasks = [];
+
+                angular.forEach(oldTasks, function (todo) {
+
+                    if (!todo.completed)
+                        $scope.tasks.push(todo);
+                    
+                });
+
+
+                
+                angular.forEach($scope.tasks, function (todo1) {
+ 
+
+                    todoModel.addItem(todo1.name, todo1.duedate, todo1.description, todo1.completed);
+                    
+
+                }); 
+                
+
+                todoModel.save();
+                
+
+            };
+
+
+        });
+
+        
+    </script>
+</head>
+<body ng-controller="taskListCtrl">
+
+    <div class="container">
+
+        <h3>ToDo List</h3>
+        <h3>{{tasks.name}}</h3>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Completed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="task in tasks">
+
+                    <td>{{task.name}}</td>
+                    <td>{{task.description}}</td>
+                    <td>{{task.duedate}}</td>
+                    <td><input type="checkbox" ng-model="task.completed" /></td>
+                    <td>
+                        <span style="{{setStyle(task.completed)}}">
+                            {{showText(task.completed)}}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="panel">
+            <!-- Форма для добавления новых задач -->
+
+            <form class="form-horizontal">
+                <div class="form-group row">
+                    <label for="input1" class="col-sm-1 control-label">Name</label>
+                    <div class="col-sm-11">
+                        <input type="text" class="form-control" id="input1" ng-model="NAME" placeholder="name" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="input3" class="col-sm-1 control-label">Description</label>
+                    <div class="col-sm-11">
+                        <input type="text" class="form-control" id="input3" ng-model="DESCRIPTION" placeholder="few words" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="input2" class="col-sm-1 control-label">Due Date</label>
+                    <div class="col-sm-11">
+                        <input type="date" class="form-control" id="input2" ng-model="DUEDATE" placeholder="dd/mm/yy" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="input3" class="col-sm-1 control-label">Completed</label>
+                    <div class="col-sm-11">
+                        <input type="checkbox" ng-model="COMPLETED" />
+                    </div>
+                </div>
+
+            </form>
+
+            <div class="form-group row">
+                <div class="col-sm-offset-1 col-sm-11">
+                    <button class="btn btn-default" ng-click="addNewTask()"> Add</button>
+                </div>
+            </div>
+
+        </div>
+
+        <section class="app-body">
+            <section class="archive-control">
+                
+                <p>[ <a href="" data-ng-click="archive()">Remove Completed Items</a> ]</p>
+            </section>
+            </section>
+</div>
+</body>
+</html>
